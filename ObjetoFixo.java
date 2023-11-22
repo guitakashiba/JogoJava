@@ -10,7 +10,7 @@ public class ObjetoFixo extends Objeto {
 
     @Override
     public void draw(Graphics g) {
-        g.setColor(Color.RED);
+        g.setColor(Color.black);
         g.fillRect(x, y, largura, altura);
     }
 

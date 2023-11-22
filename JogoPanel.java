@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Iterator;
+
 
 public class JogoPanel extends JPanel implements ActionListener {
 
@@ -12,6 +14,7 @@ public class JogoPanel extends JPanel implements ActionListener {
     private List<Guerreiro> guerreiros;
     private Timer timer;
 
+    private boolean jogoEncerrado = false;
     private boolean initialized = false;
 
     public JogoPanel() {
@@ -75,28 +78,101 @@ public class JogoPanel extends JPanel implements ActionListener {
         objetosFixos.add(objeto);
     }
 
-    private void verificarColisoes() {
-        for (Guerreiro guerreiro : guerreiros) {
+    /*private void verificarColisoes() {
+        for (int i = 0; i < guerreiros.size(); i++) {
+            Guerreiro guerreiroA = guerreiros.get(i);
+            Rectangle boundsA = guerreiroA.getBounds();
+    
             // Verifica colisão com bordas do painel
-            Rectangle bounds = guerreiro.getBounds();
-            if (bounds.x < 0 || bounds.y < 0 || bounds.x > getWidth() - bounds.width || bounds.y > getHeight() - bounds.height) {
-                guerreiro.perderEnergia(5);
-                guerreiro.escolherNovaDirecao();
+            if (boundsA.x < 0 || boundsA.y < 0 || boundsA.x > getWidth() - boundsA.width || boundsA.y > getHeight() - boundsA.height) {
+                guerreiroA.perderEnergia(5);
+                guerreiroA.escolherNovaDirecao();
             }
-
+    
             // Verifica colisão com objetos fixos
             for (Objeto objeto : objetosFixos) {
                 if (objeto instanceof ObjetoFixo) {
                     ObjetoFixo fixo = (ObjetoFixo) objeto;
-                    if (bounds.intersects(fixo.getBounds())) {
-                        guerreiro.perderEnergia(5);
-                        guerreiro.escolherNovaDirecao();
+                    if (boundsA.intersects(fixo.getBounds())) {
+                        guerreiroA.perderEnergia(5);
+                        guerreiroA.escolherNovaDirecao();
                     }
                 }
             }
+    
+            // Verifica colisão com outros guerreiros
+            for (int j = i + 1; j < guerreiros.size(); j++) {
+                Guerreiro guerreiroB = guerreiros.get(j);
+                Rectangle boundsB = guerreiroB.getBounds();
+    
+                if (boundsA.intersects(boundsB)) {
+                    guerreiroA.escolherNovaDirecao();
+                    guerreiroB.escolherNovaDirecao();
+                }
+            }
+        }
+    } */
+
+    private void verificarColisoes() {
+        Iterator<Guerreiro> iterator = guerreiros.iterator();
+    
+        while (iterator.hasNext()) {
+            Guerreiro guerreiroA = iterator.next();
+            Rectangle boundsA = guerreiroA.getBounds();
+    
+            // Verifica colisão com bordas do painel
+            if (boundsA.x < 0 || boundsA.y < 0 || boundsA.x > getWidth() - boundsA.width || boundsA.y > getHeight() - boundsA.height) {
+                guerreiroA.perderEnergia(5);
+                guerreiroA.escolherNovaDirecao();
+            }
+    
+            // Verifica colisão com objetos fixos
+            for (Objeto objeto : objetosFixos) {
+                if (objeto instanceof ObjetoFixo) {
+                    ObjetoFixo fixo = (ObjetoFixo) objeto;
+                    if (boundsA.intersects(fixo.getBounds())) {
+                        guerreiroA.perderEnergia(5);
+                        guerreiroA.escolherNovaDirecao();
+                    }
+                }
+            }
+    
+            // Verifica colisão com outros guerreiros
+            for (Guerreiro guerreiroB : guerreiros) {
+                if (guerreiroA != guerreiroB) { // Certifica-se de não comparar um guerreiro com ele mesmo
+                    Rectangle boundsB = guerreiroB.getBounds();
+                    if (boundsA.intersects(boundsB)) {
+                        guerreiroA.escolherNovaDirecao();
+                        guerreiroB.escolherNovaDirecao();
+                    }
+                }
+            }
+    
+            // Verifica se o guerreiro está morto
+            if (guerreiroA.getEnergia() <= 0) {
+                iterator.remove(); // Remove guerreiro morto da lista
+            }
+
+            // Verifica se não há guerreiros vivos
+            if (guerreiros.isEmpty()) {
+                jogoEncerrado = true;
+            }
         }
     }
-
+    
+    private void exibirMensagemJogoEncerrado(Graphics g) {
+        if (jogoEncerrado) {
+            g.setColor(Color.RED);
+            g.setFont(new Font("Arial", Font.BOLD, 48));
+            String mensagem = "Jogo Encerrado";
+            int larguraTexto = g.getFontMetrics().stringWidth(mensagem);
+            int alturaTexto = g.getFontMetrics().getHeight();
+            int x = (getWidth() - larguraTexto) / 2;
+            int y = (getHeight() - alturaTexto) / 2;
+            g.drawString(mensagem, x, y);
+        }
+    }
+   
     private void atirarProjeteis() {
         for (Guerreiro guerreiro : guerreiros) {
             guerreiro.atirar();
@@ -118,6 +194,7 @@ public class JogoPanel extends JPanel implements ActionListener {
             g.drawString("Energia: " + guerreiro.getEnergia(), guerreiro.getX(), guerreiro.getY() - 5);
         }
         verificarColisoes();
+        exibirMensagemJogoEncerrado(g);
     }
 
     @Override

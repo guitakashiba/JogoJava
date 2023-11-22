@@ -1,10 +1,33 @@
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
 
 public class Projetil extends Objeto {
-    private static final int VELOCIDADE = 5; // Defina a velocidade desejada
+    private Direcao direcao;
+    private static final int VELOCIDADE_PROJETIL = 5;
 
-    public Projetil(int x, int y, int largura, int altura) {
+    public Projetil(int x, int y, int largura, int altura, Direcao direcao) {
         super(x, y, largura, altura);
+        this.direcao = direcao;
+    }
+
+    public Direcao getDirecao() {
+        return direcao;
+    }
+
+    public void moverParaCima() {
+        y -= VELOCIDADE_PROJETIL;
+    }
+
+    public void moverParaBaixo() {
+        y += VELOCIDADE_PROJETIL;
+    }
+
+    public void moverParaEsquerda() {
+        x -= VELOCIDADE_PROJETIL;
+    }
+
+    public void moverParaDireita() {
+        x += VELOCIDADE_PROJETIL;
     }
 
     @Override
@@ -14,6 +37,20 @@ public class Projetil extends Objeto {
     }
 
     public void mover() {
-        y -= VELOCIDADE;
+        switch (direcao) {
+            case UP:
+                moverParaCima();
+                break;
+            case DOWN:
+                moverParaBaixo();
+                break;
+            case LEFT:
+                moverParaEsquerda();
+                break;
+            case RIGHT:
+                moverParaDireita();
+                break;
+        }
     }
+
 }

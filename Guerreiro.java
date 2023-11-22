@@ -6,20 +6,27 @@ import java.util.Random;
 public class Guerreiro extends Objeto {
 
     private Direcao direcaoAtual;
-    private static final int VELOCIDADE = 10;
+    private static final int VELOCIDADE = 3;
     private Random random = new Random();
     private int energia = 100;
     private int resistencia; // Resistência do guerreiro
     private int ataque; // Capacidade de ataque do guerreiro
+    private static int proximoId = 1;
+    private int id;
 
     private List<Projetil> projeteis;
 
     public Guerreiro(int x, int y, int resistencia, int ataque, int largura, int altura) {
         super(x, y, largura, altura);
+        this.id = proximoId++;
         this.resistencia = resistencia;
         this.ataque = ataque;
         escolherNovaDirecao();
         projeteis = new ArrayList<>();
+    }
+
+    public static void resetProximoId() {
+        proximoId = 1;
     }
 
     public void escolherNovaDirecao() {
@@ -28,15 +35,16 @@ public class Guerreiro extends Objeto {
     }
 
     public void atirar() {
-        Projetil projetil = new Projetil(x + largura / 2, y, 5, 5);
+        Projetil projetil = new Projetil(x + largura / 2, y, 5, 5, direcaoAtual);
         projeteis.add(projetil);
     }
-
+    
     private void moverProjeteis() {
         for (Projetil projetil : projeteis) {
             projetil.mover();
         }
     }
+    
 
     private void desenharProjeteis(Graphics g) {
         for (Projetil projetil : projeteis) {
@@ -102,7 +110,11 @@ public class Guerreiro extends Objeto {
         this.energia = Math.max(this.energia, 0); // Garante que a energia não fique negativa
     }
 
-    public enum Direcao {
-        UP, DOWN, LEFT, RIGHT
+    public List<Projetil> getProjeteis() {
+        return projeteis;
+    }
+
+    public int getId() {
+        return id;
     }
 }
